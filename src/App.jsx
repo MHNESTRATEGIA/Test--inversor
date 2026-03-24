@@ -458,7 +458,7 @@ export default function TestInversor() {
                   const msg = encodeURIComponent(
                     `Hola Manuel! Acabo de completar el test de inversor que generaste en tu comunidad y obtuve el perfil *${p.nombre}*, me gustaría conocer más sobre las opciones de inversión.`
                   );
-                  window.open(`https://wa.me/549111124005583?text=${msg}`, "_blank");
+                  window.open(`https://wa.me/5491124005583?text=${msg}`, "_blank");
                 }}
                 style={{
                   flex: 1, background: "#1A3E80", color: "#C8D8EC",
