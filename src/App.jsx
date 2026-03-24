@@ -1,7 +1,5 @@
 import { useState } from "react";
 
-// ─── DATA ────────────────────────────────────────────────────────────────────
-
 const preguntas = [
   {
     id: 1, categoria: "Horizonte temporal", tipo: "score",
@@ -138,8 +136,6 @@ function determinarPerfil(p) {
   return "audaz";
 }
 
-// ─── SUB-COMPONENTES ─────────────────────────────────────────────────────────
-
 function Label({ children, mb = 28 }) {
   return (
     <span style={{
@@ -157,18 +153,12 @@ function Divider() {
 }
 
 function BtnPrimary({ children, onClick, disabled = false, fullWidth = false }) {
-  const handleEnter = (e) => {
-    if (!disabled) e.currentTarget.style.background = "#1F4A96";
-  };
-  const handleLeave = (e) => {
-    if (!disabled) e.currentTarget.style.background = "#1A3E80";
-  };
   return (
     <button
       onClick={onClick}
       disabled={disabled}
-      onMouseEnter={handleEnter}
-      onMouseLeave={handleLeave}
+      onMouseEnter={(e) => { if (!disabled) e.currentTarget.style.background = "#1F4A96"; }}
+      onMouseLeave={(e) => { if (!disabled) e.currentTarget.style.background = "#1A3E80"; }}
       style={{
         width: fullWidth ? "100%" : "auto",
         background: disabled ? "#0D1724" : "#1A3E80",
@@ -185,19 +175,11 @@ function BtnPrimary({ children, onClick, disabled = false, fullWidth = false }) 
 }
 
 function BtnSecondary({ children, onClick }) {
-  const handleEnter = (e) => {
-    e.currentTarget.style.color = "#4A6E8C";
-    e.currentTarget.style.borderColor = "#243550";
-  };
-  const handleLeave = (e) => {
-    e.currentTarget.style.color = "#253850";
-    e.currentTarget.style.borderColor = "#121D2C";
-  };
   return (
     <button
       onClick={onClick}
-      onMouseEnter={handleEnter}
-      onMouseLeave={handleLeave}
+      onMouseEnter={(e) => { e.currentTarget.style.color = "#4A6E8C"; e.currentTarget.style.borderColor = "#243550"; }}
+      onMouseLeave={(e) => { e.currentTarget.style.color = "#253850"; e.currentTarget.style.borderColor = "#121D2C"; }}
       style={{
         background: "transparent", color: "#253850",
         border: "1px solid #121D2C", borderRadius: 3,
@@ -211,23 +193,11 @@ function BtnSecondary({ children, onClick }) {
 }
 
 function OptionBtn({ texto, selected, onClick }) {
-  const handleEnter = (e) => {
-    if (!selected) {
-      e.currentTarget.style.background = "rgba(255,255,255,0.02)";
-      e.currentTarget.style.borderColor = "#1E3050";
-    }
-  };
-  const handleLeave = (e) => {
-    if (!selected) {
-      e.currentTarget.style.background = "transparent";
-      e.currentTarget.style.borderColor = "#141E2E";
-    }
-  };
   return (
     <button
       onClick={onClick}
-      onMouseEnter={handleEnter}
-      onMouseLeave={handleLeave}
+      onMouseEnter={(e) => { if (!selected) { e.currentTarget.style.background = "rgba(255,255,255,0.02)"; e.currentTarget.style.borderColor = "#1E3050"; } }}
+      onMouseLeave={(e) => { if (!selected) { e.currentTarget.style.background = "transparent"; e.currentTarget.style.borderColor = "#141E2E"; } }}
       style={{
         display: "flex", alignItems: "flex-start", gap: 13,
         padding: "13px 16px",
@@ -238,7 +208,6 @@ function OptionBtn({ texto, selected, onClick }) {
         fontFamily: "inherit", transition: "all 0.12s",
       }}
     >
-      {/* Radio dot */}
       <div style={{
         width: 17, height: 17, borderRadius: "50%", flexShrink: 0, marginTop: 1,
         border: `1.5px solid ${selected ? "#4A90D9" : "#1E3050"}`,
@@ -251,18 +220,38 @@ function OptionBtn({ texto, selected, onClick }) {
           transition: "background 0.12s",
         }} />
       </div>
-      <span style={{
-        fontSize: 13,
-        color: selected ? "#8FAFC8" : "#3A5472",
-        lineHeight: 1.5, transition: "color 0.12s",
-      }}>
+      <span style={{ fontSize: 13, color: selected ? "#8FAFC8" : "#3A5472", lineHeight: 1.5, transition: "color 0.12s" }}>
         {texto}
       </span>
     </button>
   );
 }
 
-// ─── COMPONENTE PRINCIPAL ────────────────────────────────────────────────────
+function InputField({ label, value, onChange, placeholder, type = "text" }) {
+  return (
+    <div style={{ marginBottom: 14 }}>
+      <label style={{ display: "block", fontSize: 10, letterSpacing: 2, textTransform: "uppercase", color: "#253850", fontWeight: 600, marginBottom: 8 }}>
+        {label}
+      </label>
+      <input
+        type={type}
+        value={value}
+        onChange={onChange}
+        placeholder={placeholder}
+        style={{
+          width: "100%", background: "#080F1A",
+          border: "1px solid #1A2D42", borderRadius: 3,
+          padding: "12px 14px", fontSize: 13, color: "#8FAFC8",
+          fontFamily: "inherit", outline: "none",
+          boxSizing: "border-box",
+          transition: "border-color 0.15s",
+        }}
+        onFocus={(e) => e.target.style.borderColor = "#1A3E80"}
+        onBlur={(e) => e.target.style.borderColor = "#1A2D42"}
+      />
+    </div>
+  );
+}
 
 export default function TestInversor() {
   const [paso, setPaso] = useState("intro");
@@ -271,6 +260,8 @@ export default function TestInversor() {
   const [sel, setSel] = useState(null);
   const [resultado, setResultado] = useState(null);
   const [visible, setVisible] = useState(true);
+  const [datos, setDatos] = useState({ nombre: "", apellido: "", celular: "" });
+  const [datosError, setDatosError] = useState("");
 
   const total = preguntas.length;
   const pregunta = preguntas[idx];
@@ -299,13 +290,33 @@ export default function TestInversor() {
         }, 0);
         const monto = preguntas[total - 1]?.tipo === "info" ? nuevas[total - 1] : null;
         setResultado({ puntaje: pts, perfil: determinarPerfil(pts), monto });
-        setPaso("resultado");
+        setPaso("datos");
       }
     });
   };
 
+  const verResultado = () => {
+    if (!datos.nombre.trim() || !datos.apellido.trim() || !datos.celular.trim()) {
+      setDatosError("Por favor completá todos los campos para continuar.");
+      return;
+    }
+    setDatosError("");
+    const p = perfiles[resultado.perfil];
+    const msg = encodeURIComponent(
+      `Hola Manuel! Completé el test de perfil inversor de tu comunidad.\n\n` +
+      `👤 *Nombre:* ${datos.nombre} ${datos.apellido}\n` +
+      `📱 *Celular:* ${datos.celular}\n` +
+      `💰 *Capital a invertir:* ${resultado.monto || "No especificado"}\n` +
+      `📊 *Perfil obtenido:* ${p.nombre}\n\n` +
+      `Me gustaría conocer más sobre las opciones de inversión para mi perfil.`
+    );
+    window.open(`https://wa.me/5491124005583?text=${msg}`, "_blank");
+    transicion(() => setPaso("resultado"));
+  };
+
   const reiniciar = () => transicion(() => {
     setPaso("intro"); setIdx(0); setRespuestas({}); setSel(null); setResultado(null);
+    setDatos({ nombre: "", apellido: "", celular: "" }); setDatosError("");
   });
 
   const p = resultado ? perfiles[resultado.perfil] : null;
@@ -366,8 +377,6 @@ export default function TestInversor() {
                 {idx + 1} / {total}
               </span>
             </div>
-
-            {/* Barra de progreso */}
             <div style={{ height: 2, background: "#0D1724", marginBottom: 32, overflow: "hidden" }}>
               <div style={{
                 height: "100%",
@@ -376,20 +385,63 @@ export default function TestInversor() {
                 transition: "width 0.35s ease",
               }} />
             </div>
-
-            <p style={{ fontSize: 16, fontWeight: 300, color: "#8FAFC8", margin: "0 0 24px", lineHeight: 1.6, letterSpacing: "-0.1px" }}>
+            <p style={{ fontSize: 16, fontWeight: 300, color: "#8FAFC8", margin: "0 0 24px", lineHeight: 1.6 }}>
               {pregunta.texto}
             </p>
-
             <div style={{ marginBottom: 28 }}>
               {pregunta.opciones.map((op, i) => (
                 <OptionBtn key={i} texto={op.texto} selected={sel === i} onClick={() => setSel(i)} />
               ))}
             </div>
-
             <BtnPrimary onClick={avanzar} disabled={sel === null} fullWidth>
               {idx < total - 1 ? "Siguiente →" : "Ver resultado →"}
             </BtnPrimary>
+          </>
+        )}
+
+        {/* ── DATOS ── */}
+        {paso === "datos" && (
+          <>
+            <Label>Casi listo</Label>
+            <h2 style={{ fontSize: 22, fontWeight: 300, color: "#C8D8EC", margin: "0 0 6px", lineHeight: 1.3 }}>
+              Completá tus <strong style={{ fontWeight: 600 }}>datos</strong>
+            </h2>
+            <Divider />
+            <p style={{ fontSize: 13, color: "#2E4460", lineHeight: 1.7, margin: "0 0 28px" }}>
+              Para mostrarte tu perfil y poder asesorarte correctamente, necesitamos tus datos de contacto.
+            </p>
+            <InputField
+              label="Nombre"
+              value={datos.nombre}
+              onChange={(e) => setDatos({ ...datos, nombre: e.target.value })}
+              placeholder="Ej: Juan"
+            />
+            <InputField
+              label="Apellido"
+              value={datos.apellido}
+              onChange={(e) => setDatos({ ...datos, apellido: e.target.value })}
+              placeholder="Ej: García"
+            />
+            <InputField
+              label="Celular"
+              value={datos.celular}
+              onChange={(e) => setDatos({ ...datos, celular: e.target.value })}
+              placeholder="Ej: 1155556666"
+              type="tel"
+            />
+            {datosError && (
+              <p style={{ fontSize: 11, color: "#D4624A", margin: "0 0 16px", letterSpacing: 0.3 }}>
+                {datosError}
+              </p>
+            )}
+            <div style={{ marginTop: 8 }}>
+              <BtnPrimary onClick={verResultado} fullWidth>
+                Ver mi perfil →
+              </BtnPrimary>
+            </div>
+            <p style={{ fontSize: 10, color: "#1A2D42", textAlign: "center", margin: "12px 0 0", lineHeight: 1.6 }}>
+              Tus datos se envían directamente a tu asesor por WhatsApp.
+            </p>
           </>
         )}
 
@@ -397,34 +449,23 @@ export default function TestInversor() {
         {paso === "resultado" && p && (
           <>
             <Label>Tu resultado</Label>
-
             <div style={{ marginBottom: 4 }}>
               <span style={{ fontSize: 10, color: p.accent, letterSpacing: 2, fontWeight: 600 }}>PERFIL</span>
             </div>
             <h2 style={{ fontSize: 32, fontWeight: 300, color: "#C8D8EC", margin: "4px 0 8px", letterSpacing: "-0.4px" }}>
               <strong style={{ fontWeight: 700, color: p.accent }}>{p.nombre}</strong>
             </h2>
-
             <div style={{ display: "flex", gap: 20, flexWrap: "wrap" }}>
-              <span style={{ fontSize: 10, color: "#1E3050", letterSpacing: 0.5 }}>
-                Puntaje: {resultado.puntaje} / 24
-              </span>
-              <span style={{ fontSize: 10, color: "#1E3050", letterSpacing: 0.5 }}>
-                Rango {p.nombre}: {p.rango} pts
-              </span>
+              <span style={{ fontSize: 10, color: "#1E3050", letterSpacing: 0.5 }}>Puntaje: {resultado.puntaje} / 24</span>
+              <span style={{ fontSize: 10, color: "#1E3050", letterSpacing: 0.5 }}>Rango {p.nombre}: {p.rango} pts</span>
               {resultado.monto && (
-                <span style={{ fontSize: 10, color: "#1E3050", letterSpacing: 0.5 }}>
-                  Capital declarado: {resultado.monto}
-                </span>
+                <span style={{ fontSize: 10, color: "#1E3050", letterSpacing: 0.5 }}>Capital declarado: {resultado.monto}</span>
               )}
             </div>
-
             <Divider />
-
             <p style={{ fontSize: 13, color: "#2E4460", lineHeight: 1.75, marginBottom: 28 }}>
               {p.descripcion}
             </p>
-
             <Label mb={14}>Instrumentos sugeridos</Label>
             <div style={{ marginBottom: 28 }}>
               {p.instrumentos.map((inst, i) => (
@@ -437,18 +478,11 @@ export default function TestInversor() {
                 </div>
               ))}
             </div>
-
-            {/* Disclaimer */}
-            <div style={{
-              padding: "13px 16px", background: "#080F1A",
-              border: "1px solid #0D1724", borderRadius: 3, marginBottom: 24,
-            }}>
-              <p style={{ fontSize: 10, color: "#1A2D42", lineHeight: 1.65, margin: 0, letterSpacing: 0.2 }}>
-                Este test tiene carácter orientativo y no constituye asesoramiento financiero personalizado. Los instrumentos mencionados no implican una recomendación de inversión. Las inversiones conllevan riesgo de pérdida de capital. Consultá con tu asesor antes de tomar decisiones.
+            <div style={{ padding: "13px 16px", background: "#080F1A", border: "1px solid #0D1724", borderRadius: 3, marginBottom: 24 }}>
+              <p style={{ fontSize: 10, color: "#1A2D42", lineHeight: 1.65, margin: 0 }}>
+                Este test tiene carácter orientativo y no constituye asesoramiento financiero personalizado. Las inversiones conllevan riesgo de pérdida de capital. Consultá con tu asesor antes de tomar decisiones.
               </p>
             </div>
-
-            {/* Botones */}
             <div style={{ display: "flex", gap: 10 }}>
               <BtnSecondary onClick={reiniciar}>↩ Reiniciar</BtnSecondary>
               <button
@@ -456,7 +490,7 @@ export default function TestInversor() {
                 onMouseLeave={(e) => e.currentTarget.style.background = "#1A3E80"}
                 onClick={() => {
                   const msg = encodeURIComponent(
-                    `Hola Manuel! Acabo de completar el test de inversor que generaste en tu comunidad y obtuve el perfil *${p.nombre}*, me gustaría conocer más sobre las opciones de inversión.`
+                    `Hola Manuel! Completé el test de inversor que generaste en tu comunidad y obtuve el perfil *${p.nombre}*, me gustaría conocer más sobre las opciones de inversión.`
                   );
                   window.open(`https://wa.me/5491124005583?text=${msg}`, "_blank");
                 }}
